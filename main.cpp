@@ -27,28 +27,105 @@
 #include "metric_impl/metrics.hpp"
 
 int main(int argc, char *argv[]) {
-    analyser::cmd::ProgramOptions options;
-    // распарсите входные параметры
+    try {
+        analyser::cmd::ProgramOptions options;
+        // распарсите входные параметры
+        options.Parse(argc, argv);
+        auto files = options.GetFiles();
+        if (files.empty()) {
+            throw std::runtime_error("No files specified");
+        }
 
-    // analyser::metric::MetricExtractor metric_extractor;
-    // зарегистрируйте метрики в metric_extractor
+        analyser::metric::MetricExtractor metric_extractor;
+        metric_extractor.RegisterMetric(std::make_unique<analyser::metric::metric_impl::CodeLinesCountMetric>());
+        metric_extractor.RegisterMetric(std::make_unique<analyser::metric::metric_impl::CyclomaticComplexityMetric>());
+        metric_extractor.RegisterMetric(std::make_unique<analyser::metric::metric_impl::CountParametersMetric>());
 
-    // запустите analyser::AnalyseFunctions
-    // выведете результаты анализа на консоль
+        // запустите analyser::AnalyseFunctions
+        auto analysis_results = analyser::AnalyseFunctions(files, metric_extractor);
 
-    // analyser::metric_accumulator::MetricsAccumulator accumulator;
-    // зарегистрируйте аккумуляторы метрик в accumulator
+        std::ranges::for_each(analysis_results, [&](auto &pair) {
+            std::println("Function: {} ", pair.first);
+            std::ranges::for_each(pair.second, [&](auto &metric) {
+                std::println("Metrics Results: (metric_name: {}, metric value: {}) ", metric.metric_name, metric.value);
+            });
+        });
 
-    // запустите analyser::SplitByFiles
-    // запустите analyser::AccumulateFunctionAnalysis для каждого подмножества результатов метрик
-    // выведете результаты на консоль
 
-    // запустите analyser::SplitByClasses
-    // запустите analyser::AccumulateFunctionAnalysis для каждого подмножества результатов метрик
-    // выведете результаты на консоль
+        // зарегистрируйте аккумуляторы метрик в accumulator
+        analyser::metric_accumulator::MetricsAccumulator accumulator;
+        accumulator.RegisterAccumulator("CodeLinesCountMetric", std::make_unique<analyser::metric_accumulator::metric_accumulator_impl::AverageAccumulator>());
+        accumulator.RegisterAccumulator("CyclomaticComplexityMetric", std::make_unique<analyser::metric_accumulator::metric_accumulator_impl::SumAverageAccumulator>());
+        accumulator.RegisterAccumulator("CountParametersMetric", std::make_unique<analyser::metric_accumulator::metric_accumulator_impl::AverageAccumulator>());
+        accumulator.ResetAccumulators();
 
-    // запустите analyser::AccumulateFunctionAnalysis для всех результатов метрик
-    // выведете результаты на консоль
+        std::println();
+        std::println();
+        std::println();
+        std::println();
+        std::println("Split by files");
+        auto splitted_by_files = analyser::SplitByFiles(analysis_results);
+        std::ranges::for_each(splitted_by_files, [&](auto &group) {
+            analyser::AccumulateFunctionAnalysis(group, accumulator);
+            const auto& filename = group[0].first.filename;
+            std::println("Accumulated Analysis for file: {}", filename);
+            auto result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::AverageAccumulator>("CodeLinesCountMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CodeLinesCountMetric", result_for_accumulator);
+            auto sum_result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::SumAverageAccumulator>("CyclomaticComplexityMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CyclomaticComplexityMetric", sum_result_for_accumulator);
+            result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::AverageAccumulator>("CountParametersMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CountParametersMetric", result_for_accumulator);
+        });
+
+        // запустите analyser::SplitByFiles
+        // запустите analyser::AccumulateFunctionAnalysis для каждого подмножества результатов метрик
+        // выведете результаты на консоль
+        accumulator.ResetAccumulators();
+
+        std::println();
+        std::println();
+        std::println();
+        std::println();
+        std::println("Split by class");
+
+        auto splitted_by_classes = analyser::SplitByClasses(analysis_results);
+        std::ranges::for_each(splitted_by_classes, [&](auto &group) {
+            analyser::AccumulateFunctionAnalysis(group, accumulator);
+            const auto& class_name = group[0].first.class_name.value_or("unknown");
+            std::println("Accumulated Analysis for class: {}", class_name);
+
+            auto result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::AverageAccumulator>("CodeLinesCountMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CodeLinesCountMetric", result_for_accumulator);
+            auto sum_result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::SumAverageAccumulator>("CyclomaticComplexityMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CyclomaticComplexityMetric", sum_result_for_accumulator);
+            result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::AverageAccumulator>("CountParametersMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CountParametersMetric", result_for_accumulator);
+        });
+        // запустите analyser::SplitByClasses
+        // запустите analyser::AccumulateFunctionAnalysis для каждого подмножества результатов метрик
+        // выведете результаты на консоль
+        accumulator.ResetAccumulators();
+
+        analyser::AccumulateFunctionAnalysis(analysis_results, accumulator);
+        // запустите analyser::AccumulateFunctionAnalysis для всех результатов метрик
+        // выведете результаты на консоль
+        std::println();
+        std::println();
+        std::println();
+        std::println();
+        std::println("Overal statistic");
+        std::ranges::for_each(analysis_results, [&](std::pair<analyser::function::Function, analyser::metric::MetricResults> &pair) {
+            auto result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::AverageAccumulator>("CodeLinesCountMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CodeLinesCountMetric", result_for_accumulator);
+            auto sum_result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::SumAverageAccumulator>("CyclomaticComplexityMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CyclomaticComplexityMetric", sum_result_for_accumulator);
+            result_for_accumulator = accumulator.GetFinalizedAccumulator<analyser::metric_accumulator::metric_accumulator_impl::AverageAccumulator>("CountParametersMetric").Get();
+            std::println("Accumulator Results: (accumulator_name: {}, value: {}) ", "CountParametersMetric", result_for_accumulator);
+        });
+
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
 
     return 0;
 }

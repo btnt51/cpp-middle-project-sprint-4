@@ -62,3 +62,17 @@ private:
 };
 
 } // namespace analyser::function
+
+namespace std {
+    template <>
+    struct formatter<analyser::function::Function, char> {
+        template <typename FormatContext>
+        auto format(const analyser::function::Function func, FormatContext &fc) const {
+            auto className = func.class_name.value_or("unknown");
+
+            return format_to(fc.out(), "Filename: {}, classname: {}, name: {}, ast:\n{}", func.filename, className, func.name, func.ast);
+        }
+
+        constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
+    };
+}

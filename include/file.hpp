@@ -11,7 +11,7 @@ namespace analyser::file {
 
 struct File {
     static inline const std::string command_prefix =
-        "tree-sitter parse --config-path /root/.config/tree-sitter/config.json ";
+        "tree-sitter parse --config-path /home/dev/.config/tree-sitter/config.json ";
     File(const std::string& filename);
     std::string name;
     std::string ast;

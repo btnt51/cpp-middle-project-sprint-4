@@ -41,3 +41,15 @@ private:
 };
 
 } // namespace analyser::metric_accumulator::metric_accumulator_impl
+
+namespace std {
+    template <>
+    struct formatter<analyser::metric_accumulator::metric_accumulator_impl::SumAverageAccumulator::SumAverage, char> {
+        template <typename FormatContext>
+        auto format(const analyser::metric_accumulator::metric_accumulator_impl::SumAverageAccumulator::SumAverage& sum, FormatContext &fc) const {
+            return format_to(fc.out(), "Sum: {}, Average: {}", sum.sum, sum.average);
+        }
+
+        constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
+    };
+}

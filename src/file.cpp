@@ -19,7 +19,11 @@ File::File(const std::string &filename) : name{filename} {
     if (!file.is_open()) {
         throw std::invalid_argument("Can't open file " + filename);
     }
-    ast = GetAst(filename);
+    try {
+        ast = GetAst(filename);
+    } catch (const std::exception &e) {
+        throw;
+    }
     source_lines = ReadSourceFile(file);
 }
 
@@ -62,7 +66,7 @@ std::string File::GetAst(const std::string &filename) try {
     while (fgets(buffer.data(), buffer.size(), pipe.get())) {
         result += buffer.data();
     }
-
+    pipe.~PipePtr();
     return result;
 } catch (const std::exception &e) {
     throw std::runtime_error("Error while getting ast from " + filename);

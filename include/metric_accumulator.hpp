@@ -37,12 +37,24 @@ protected:
 struct MetricsAccumulator {
     template <typename Accumulator>
     void RegisterAccumulator(const std::string& metric_name, std::unique_ptr<Accumulator> acc) {
-        // здесь ваш код
+        accumulators[metric_name] = std::move(acc);
     }
+
     template <typename Accumulator>
     const Accumulator& GetFinalizedAccumulator(const std::string& metric_name) const {
-        // здесь ваш код
+        const auto it = accumulators.find(metric_name);
+        if (it == accumulators.end()) {
+            throw std::runtime_error("Metric not found: " + metric_name);
+        }
+        auto ptr = std::dynamic_pointer_cast<Accumulator>(it->second);
+
+        const_cast<Accumulator*>(ptr.get())->Finalize();
+        if (!ptr) {
+            throw std::runtime_error("Accumulator type mismatch for metric: " + metric_name);
+        }
+        return *ptr;
     }
+
     void AccumulateNextFunctionResults(
         const std::vector<metric::MetricResult>& metric_results) const;
 
