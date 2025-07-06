@@ -19,7 +19,7 @@
 
 namespace analyser::metric_accumulator::metric_accumulator_impl {
 
-void SumAverageAccumulator::Accumulate(const metric::MetricResult& metric_result) {
+void SumAverageAccumulator::Accumulate(const metric::MetricResult &metric_result) {
     if (is_finalized)
         return;
     sum += metric_result.value;
@@ -29,7 +29,7 @@ void SumAverageAccumulator::Accumulate(const metric::MetricResult& metric_result
 void SumAverageAccumulator::Finalize() {
     if (sum == 0 and count == 0)
         throw std::runtime_error("No accumalated metric found");
-    average = sum != 0 ? static_cast<double>(sum)/static_cast<double>(count) : 0.0;
+    average = sum != 0 ? static_cast<double>(sum) / static_cast<double>(count) : 0.0;
     is_finalized = true;
 }
 
@@ -42,7 +42,7 @@ void SumAverageAccumulator::Reset() {
 
 SumAverageAccumulator::SumAverage SumAverageAccumulator::Get() const {
     if (not is_finalized) {
-        return {0,0.0};
+        return {0, 0.0};
     }
     return SumAverageAccumulator::SumAverage(sum, average);
 }

@@ -32,7 +32,7 @@ struct Function {
 };
 
 struct FunctionExtractor {
-    std::vector<Function> Get(const analyser::file::File& file);
+    std::vector<Function> Get(const analyser::file::File &file);
 
 private:
     struct Position {
@@ -52,27 +52,25 @@ private:
         Position end;
     };
 
-    FunctionNameLocation GetNameLocation(const std::string& function_ast);
-    std::string GetNameFromSource(const std::string& function_ast,
-                                  const std::vector<std::string>& lines);
-    std::optional<ClassInfo> FindEnclosingClass(const std::string& ast,
-                                                const FunctionNameLocation& func_loc);
-    std::string GetClassNameFromSource(const ClassInfo& class_info,
-                                       const std::vector<std::string>& lines);
+    FunctionNameLocation GetNameLocation(const std::string &function_ast);
+    std::string GetNameFromSource(const std::string &function_ast, const std::vector<std::string> &lines);
+    std::optional<ClassInfo> FindEnclosingClass(const std::string &ast, const FunctionNameLocation &func_loc);
+    std::string GetClassNameFromSource(const ClassInfo &class_info, const std::vector<std::string> &lines);
 };
 
-} // namespace analyser::function
+}  // namespace analyser::function
 
 namespace std {
-    template <>
-    struct formatter<analyser::function::Function, char> {
-        template <typename FormatContext>
-        auto format(const analyser::function::Function func, FormatContext &fc) const {
-            auto className = func.class_name.value_or("unknown");
+template <>
+struct formatter<analyser::function::Function, char> {
+    template <typename FormatContext>
+    auto format(const analyser::function::Function func, FormatContext &fc) const {
+        auto className = func.class_name.value_or("unknown");
 
-            return format_to(fc.out(), "Filename: {}, classname: {}, name: {}, ast:\n{}", func.filename, className, func.name, func.ast);
-        }
+        return format_to(fc.out(), "Filename: {}, classname: {}, name: {}, ast:\n{}", func.filename, className,
+                         func.name, func.ast);
+    }
 
-        constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
-    };
-}
+    constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
+};
+}  // namespace std

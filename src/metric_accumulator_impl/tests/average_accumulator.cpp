@@ -6,7 +6,6 @@
 
 namespace analyser::metric_accumulator::metric_accumulator_impl::test {
 
-
 TEST(AverageAccumulatorTest, AverageOfOneValue) {
     AverageAccumulator acc;
     acc.Accumulate({.value = 42});
@@ -34,8 +33,7 @@ TEST(AverageAccumulatorTest, ResetClearsState) {
 TEST(AverageAccumulatorTest, FinalizeWithNoData) {
     AverageAccumulator acc;
 
-   EXPECT_THROW(acc.Finalize(), std::runtime_error);
-
+    EXPECT_THROW(acc.Finalize(), std::runtime_error);
 }
 
 TEST(AverageAccumulatorTest, HandlesNegativeAndZero) {

@@ -22,8 +22,8 @@ TEST(SumAverageAccumulatorTest, MultipleValues) {
     acc.Accumulate({.value = 20});
     acc.Finalize();
     auto result = acc.Get();
-    EXPECT_EQ(result.sum, 40);        // 5 + 15 + 20
-    EXPECT_DOUBLE_EQ(result.average, 40.0/3.0);
+    EXPECT_EQ(result.sum, 40);  // 5 + 15 + 20
+    EXPECT_DOUBLE_EQ(result.average, 40.0 / 3.0);
 }
 
 TEST(SumAverageAccumulatorTest, ResetWorks) {
@@ -50,7 +50,7 @@ TEST(SumAverageAccumulatorTest, NegativeAndZero) {
     acc.Accumulate({.value = 5});
     acc.Finalize();
     auto result = acc.Get();
-    EXPECT_EQ(result.sum, 0);          // 0 + (-5) + 5
+    EXPECT_EQ(result.sum, 0);  // 0 + (-5) + 5
     EXPECT_DOUBLE_EQ(result.average, 0.0);
 }
 }  // namespace analyser::metric_accumulator::metric_accumulator_impl::test

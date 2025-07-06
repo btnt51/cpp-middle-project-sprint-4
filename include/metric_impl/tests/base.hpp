@@ -11,18 +11,18 @@ struct MetricTestParam {
 
 class MetricGTestBase : public ::testing::TestWithParam<MetricTestParam> {
 protected:
-    const IMetric& metric;
+    const IMetric &metric;
 
-    explicit MetricGTestBase(const IMetric& m) : metric(m) {}
+    explicit MetricGTestBase(const IMetric &m) : metric(m) {}
 
     void RunMetricTest() {
         auto param = GetParam();
 
-        analyser::file::File file(param.file_path); // предположим ты можешь так парсить
+        analyser::file::File file(param.file_path);  // предположим ты можешь так парсить
         analyser::function::FunctionExtractor extractor;
         const auto functions = extractor.Get(file);
         const MetricResult result = metric.Calculate(functions.front());
         EXPECT_EQ(result.value, param.expected_value) << "File: " << param.file_path;
     }
 };
-}
+}  // namespace analyser::metric::metric_impl

@@ -18,7 +18,7 @@
 #include <vector>
 
 namespace analyser::metric_accumulator::metric_accumulator_impl {
-void AverageAccumulator::Accumulate(const metric::MetricResult& metric_result) {
+void AverageAccumulator::Accumulate(const metric::MetricResult &metric_result) {
     if (is_finalized)
         return;
     sum += metric_result.value;
@@ -28,7 +28,7 @@ void AverageAccumulator::Accumulate(const metric::MetricResult& metric_result) {
 void AverageAccumulator::Finalize() {
     if (sum == 0 and count == 0)
         throw std::runtime_error("No accumalated metric found");
-    average = sum != 0 ? static_cast<double>(sum)/static_cast<double>(count) : 0.0;
+    average = sum != 0 ? static_cast<double>(sum) / static_cast<double>(count) : 0.0;
     is_finalized = true;
 }
 
