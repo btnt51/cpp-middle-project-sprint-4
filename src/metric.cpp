@@ -22,16 +22,12 @@
 
 namespace analyser::metric {
 
-void MetricExtractor::RegisterMetric(std::unique_ptr<IMetric> metric) {
-    metrics.push_back(std::move(metric));
-}
+void MetricExtractor::RegisterMetric(std::unique_ptr<IMetric> metric) { metrics.push_back(std::move(metric)); }
 
 MetricResults MetricExtractor::Get(const function::Function &func) const {
     MetricResults result;
     result.reserve(metrics.size());
-    std::ranges::for_each(metrics, [&func, &result](auto&& metric) {
-        result.emplace_back(metric->Calculate(func));
-    });
+    std::ranges::for_each(metrics, [&func, &result](auto &&metric) { result.emplace_back(metric->Calculate(func)); });
     return result;
 }
 
