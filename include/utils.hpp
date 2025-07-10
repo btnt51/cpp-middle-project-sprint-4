@@ -6,11 +6,8 @@
 #include <string_view>
 
 inline int ToInt(std::string_view value) {
-    while (!value.empty() && std::isspace(static_cast<unsigned char>(value.front())))
-        value.remove_prefix(1);
-
-    while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back())))
-        value.remove_suffix(1);
+    value.remove_prefix(value.find_first_not_of(' '));
+    value.remove_suffix(value.find(' '));
 
     int result{};
     auto [parse_end_ptr, error_code] = std::from_chars(value.begin(), value.end(), result);

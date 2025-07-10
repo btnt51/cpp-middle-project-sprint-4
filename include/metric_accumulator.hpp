@@ -37,6 +37,8 @@ protected:
 struct MetricsAccumulator {
     template <typename Accumulator>
     void RegisterAccumulator(const std::string &metric_name, std::unique_ptr<Accumulator> acc) {
+        if (accumulators.contains(metric_name))
+            throw std::runtime_error("Accumulator " + metric_name + " already registered");
         accumulators[metric_name] = std::move(acc);
     }
 
