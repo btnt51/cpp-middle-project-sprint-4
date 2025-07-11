@@ -50,10 +50,12 @@ struct MetricsAccumulator {
         }
         auto ptr = std::dynamic_pointer_cast<Accumulator>(it->second);
 
-        const_cast<Accumulator *>(ptr.get())->Finalize();
         if (!ptr) {
             throw std::runtime_error("Accumulator type mismatch for metric: " + metric_name);
         }
+
+        const_cast<Accumulator *>(ptr.get())->Finalize();
+
         return *ptr;
     }
 
