@@ -29,17 +29,14 @@ namespace rs = rs;
 
 auto AnalyseFunctions(const std::vector<std::string> &files,
                       const analyser::metric::MetricExtractor &metric_extractor) {
-    std::vector<std::pair<analyser::function::Function, analyser::metric::MetricResults>> res;
     analyser::function::FunctionExtractor funcExtractor;
-    auto all_functions = files | rv::transform([](const auto &file_path) { return analyser::file::File(file_path); }) |
-                         rv::transform([&](const auto &file) { return funcExtractor.Get(file); }) | rv::join |
-                         rv::transform([&](const auto &function) {
-                             auto metrics = metric_extractor.Get(function);
-                             return std::make_pair(function, metrics);
-                         }) |
-                         rs::to<std::vector>();
-
-    return res;
+    return files | rv::transform([](const auto &file_path) { return analyser::file::File(file_path); }) |
+           rv::transform([&](const auto &file) { return funcExtractor.Get(file); }) | rv::join |
+           rv::transform([&](const auto &function) {
+               auto metrics = metric_extractor.Get(function);
+               return std::make_pair(function, metrics);
+           }) |
+           rs::to<std::vector>();
 }
 
 auto SplitByClasses(const auto &analysis) {

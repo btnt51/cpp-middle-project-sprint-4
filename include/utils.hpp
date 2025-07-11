@@ -7,7 +7,9 @@
 
 inline int ToInt(std::string_view value) {
     value.remove_prefix(value.find_first_not_of(' '));
-    value.remove_suffix(value.find(' '));
+    if (auto last_non_space = value.find_last_not_of(' '); last_non_space != std::string_view::npos) {
+        value.remove_suffix(value.size() - last_non_space - 1);
+    }
 
     int result{};
     auto [parse_end_ptr, error_code] = std::from_chars(value.begin(), value.end(), result);
