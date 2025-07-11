@@ -20,13 +20,13 @@
 
 namespace analyser::metric_accumulator::metric_accumulator_impl {
 
-struct SumAverageAccumulator: public IAccumulator {
+struct SumAverageAccumulator : public IAccumulator {
     struct SumAverage {
         int sum;
         double average;
-        auto operator<=>(const SumAverage&) const = default;
+        auto operator<=>(const SumAverage &) const = default;
     };
-    void Accumulate(const metric::MetricResult& metric_result) override;
+    void Accumulate(const metric::MetricResult &metric_result) override;
 
     virtual void Finalize() override;
 
@@ -40,4 +40,17 @@ private:
     double average = 0;
 };
 
-} // namespace analyser::metric_accumulator::metric_accumulator_impl
+}  // namespace analyser::metric_accumulator::metric_accumulator_impl
+
+namespace std {
+template <>
+struct formatter<analyser::metric_accumulator::metric_accumulator_impl::SumAverageAccumulator::SumAverage, char> {
+    template <typename FormatContext>
+    auto format(const analyser::metric_accumulator::metric_accumulator_impl::SumAverageAccumulator::SumAverage &sum,
+                FormatContext &fc) const {
+        return format_to(fc.out(), "Sum: {}, Average: {}", sum.sum, sum.average);
+    }
+
+    constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
+};
+}  // namespace std
